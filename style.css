@@ -33,6 +33,11 @@ header {
     transition: all 0.3s ease;
 }
 
+button.opacity-0 {
+    background-color: rgba(255, 215, 0, 0);
+    border: none;
+}
+
 .header-content {
     display: flex;
     justify-content: space-between;
@@ -270,35 +275,69 @@ header {
     overflow: hidden;
 }
 
+.reviews-container {
+    overflow: hidden;
+    position: relative;
+}
+
 .reviews-slider {
     display: flex;
-    animation: slide 30s linear infinite;
     gap: 30px;
+    animation: infiniteSlide 45s linear infinite;
 }
 
 .review-card {
-    min-width: 350px;
+    min-width: 280px;
+    max-width: 320px;
     background: white;
-    padding: 30px;
-    border-radius: 10px;
+    padding: 25px;
+    border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     border-top: 4px solid #FFD700;
+    flex-shrink: 0;
 }
 
 .review-rating {
     color: #FFD700;
-    font-size: 1.2rem;
-    margin-bottom: 15px;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
 }
 
 .review-text {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.4;
 }
 
-.review-author {
-    font-weight: bold;
-    color: #2c2c2c;
+@keyframes infiniteSlide {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-300px * 4 - 120px));
+    }
+}
+
+@media (max-width: 768px) {
+    .review-card {
+        min-width: 260px;
+        max-width: 280px;
+        padding: 20px;
+    }
+    
+    .review-text {
+        font-size: 0.9rem;
+    }
+    
+    @keyframes infiniteSlide {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(calc(-270px * 4 - 120px));
+        }
+    }
 }
 
 /* Contact Section */
