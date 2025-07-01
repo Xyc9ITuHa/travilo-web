@@ -73,7 +73,7 @@ class FlyAnimation {
         const deltaX = targetX - currentX;
         const deltaY = targetY - currentY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const duration = Math.min(distance / this.speed, 1.2) * 1000;
+        const duration = Math.min(distance / this.speed, 1.2) * 1000; // прискорено
         
         this.fly.style.transition = `
             left ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -81,7 +81,7 @@ class FlyAnimation {
             transform ${Math.min(duration * 0.4, 300)}ms ease-out
         `;
         
-        const steps = Math.max(8, Math.floor(duration / 50));
+        const steps = 12; // менше кроків для швидшої анімації
         let step = 0;
         
         const interval = setInterval(() => {
@@ -249,12 +249,112 @@ function initContactForm() {
     }
 }
 
+// === HERO IMAGE SLIDESHOW ===
+class HeroSlideshow {
+    constructor(heroSelector = '#hero', imageSelector = '#heroImage') {
+        this.heroSection = document.querySelector(heroSelector);
+        this.heroImage = document.querySelector(imageSelector);
+        this.images = [
+            'images/hero.png',
+            'images/hero2.png',
+            'images/hero3.png'
+        ];
+        this.currentIndex = 0;
+        this.isChanging = false;
+        this.init();
+    }
+    
+    changeImage() {
+        if (this.isChanging) return;
+        this.isChanging = true;
+        
+        this.currentIndex = (this.currentIndex + 1) % this.images.length;
+        const newImage = this.images[this.currentIndex];
+        
+        // Fade out hero image
+        this.heroImage.style.opacity = '0';
+        
+        // Prepare next background image
+        this.heroSection.style.setProperty('--next-bg', `url('${newImage}')`);
+        
+        // Update ::after pseudo-element with new image
+        const style = document.createElement('style');
+        style.id = 'hero-bg-transition';
+        style.textContent = `
+            .hero::after {
+                background-image: url('${newImage}') !important;
+                opacity: 0.3 !important;
+                transform: scale(1) !important;
+            }
+            .hero::before {
+                opacity: 0 !important;
+                transform: scale(0.9) !important;
+            }
+        `;
+        
+        // Remove old style if exists
+        const oldStyle = document.getElementById('hero-bg-transition');
+        if (oldStyle) {
+            oldStyle.remove();
+        }
+        
+        document.head.appendChild(style);
+        
+        setTimeout(() => {
+            // Change hero image
+            this.heroImage.src = newImage;
+            this.heroImage.style.opacity = '1';
+            
+            // Swap backgrounds
+            setTimeout(() => {
+                const swapStyle = document.createElement('style');
+                swapStyle.id = 'hero-bg-swap';
+                swapStyle.textContent = `
+                    .hero::before {
+                        background-image: url('${newImage}') !important;
+                        opacity: 0.3 !important;
+                        transform: scale(1) !important;
+                    }
+                    .hero::after {
+                        opacity: 0 !important;
+                        transform: scale(1.1) !important;
+                    }
+                `;
+                
+                // Remove old styles
+                const oldSwapStyle = document.getElementById('hero-bg-swap');
+                if (oldSwapStyle) {
+                    oldSwapStyle.remove();
+                }
+                if (style.parentNode) {
+                    style.remove();
+                }
+                
+                document.head.appendChild(swapStyle);
+                
+                setTimeout(() => {
+                    this.isChanging = false;
+                }, 800);
+            }, 100);
+        }, 400);
+    }
+    
+    init() {
+        if (this.heroSection && this.heroImage) {
+            setInterval(() => {
+                this.changeImage();
+            }, 3000);
+        }
+    }
+}
+
 // === INITIALIZATION ===
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all modules
     new FlyAnimation('animatedFly', { speed: 600 });
     new ScrollAnimations();
     new CounterAnimation();
+    new HeroSlideshow();
     
     // Initialize other features
     initHeaderScroll();
